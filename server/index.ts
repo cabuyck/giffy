@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import type { Room, ServerToClientEvents, ClientToServerEvents, Player, InterServerEvents, SocketData } from '@/types';
 import { getRandomPrompt } from './prompts';
+import { searchGifs } from './giphyClient';
 
 const app = express();
 const httpServer = createServer(app);
@@ -14,6 +15,29 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
 });
 
 const PORT = process.env.PORT || 3001;
+
+// Express middleware
+app.use(express.json());
+
+// Giphy search endpoint
+app.get('/api/gifs/search', async (req, res) => {
+  const { q } = req.query;
+
+  if (!q || typeof q !== 'string') {
+    return res.status(400).json({ error: 'Query parameter "q" is required' });
+  }
+
+  try {
+    const results = await searchGifs(q, 20);
+    res.json({ results });
+  } catch (error) {
+    console.error('Error in /api/gifs/search:', error);
+    res.status(500).json({
+      error: 'Failed to search GIFs',
+      results: [],
+    });
+  }
+});
 
 // In-memory room storage
 const rooms = new Map<string, Room>();
