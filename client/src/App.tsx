@@ -5,6 +5,7 @@ import JudgePromptPage from './components/JudgePromptPage';
 import GifSubmissionPage from './components/GifSubmissionPage';
 import JudgingPage from './components/JudgingPage';
 import RoundResultsPage from './components/RoundResultsPage';
+import GameOverPage from './components/GameOverPage';
 import type { Room } from '@/types';
 import type { ServerToClientEvents, ClientToServerEvents } from '@/types';
 import type { Socket } from 'socket.io-client';
@@ -61,6 +62,16 @@ function App() {
     if (currentRoom.gameState === 'round_results') {
       return (
         <RoundResultsPage
+          room={currentRoom}
+          currentPlayerId={currentPlayerId}
+          socket={socket}
+        />
+      );
+    }
+
+    if (currentRoom.gameState === 'game_over') {
+      return (
+        <GameOverPage
           room={currentRoom}
           currentPlayerId={currentPlayerId}
           socket={socket}

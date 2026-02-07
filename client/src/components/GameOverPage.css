@@ -1,0 +1,192 @@
+.game-over-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1rem;
+}
+
+.game-over-container {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.winner-banner {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+}
+
+.winner-text {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.game-over-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.5rem 0;
+}
+
+.game-over-subtitle {
+  color: #718096;
+  font-size: 1.125rem;
+  margin: 0 0 2rem 0;
+}
+
+/* Scoreboard */
+.scoreboard-section {
+  margin-bottom: 2rem;
+}
+
+.scoreboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scoreboard-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 0.75rem;
+  border: 2px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.scoreboard-item.winner {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border-color: #ffd700;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+}
+
+.scoreboard-item.current-player {
+  border-color: #667eea;
+  background: #edf2f7;
+}
+
+.trophy-icon {
+  font-size: 1.5rem;
+  min-width: 2rem;
+}
+
+.player-rank {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #667eea;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.scoreboard-item.winner .player-rank {
+  color: #1a202c;
+}
+
+.player-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.player-name {
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.you-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.player-score {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.scoreboard-item.winner .player-score {
+  color: #1a202c;
+}
+
+/* Actions */
+.actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 2px solid #e2e8f0;
+}
+
+.play-again-button,
+.leave-game-button {
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.play-again-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+}
+
+.play-again-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.play-again-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.leave-game-button {
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  color: #4a5568;
+}
+
+.leave-game-button:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .game-over-container {
+    padding: 1.5rem;
+  }
+
+  .winner-text {
+    font-size: 1.5rem;
+  }
+
+  .game-over-title {
+    font-size: 1.5rem;
+  }
+
+  .scoreboard-item {
+    padding: 0.875rem;
+  }
+}
