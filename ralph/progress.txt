@@ -428,3 +428,30 @@
 - The prompt_rerolled event is sent only to the new judge to start their selection
 - Emit different events based on game state: next_round for continuing, game_over for ending
 ---
+
+## 2025-02-07 - US-017
+- Created GameOverPage component shown when game ends
+- Display final scoreboard with all players ranked by score (descending)
+- Highlight overall winner with special visual treatment (gold gradient + trophy icon)
+- Show personalized winner banner: "You Win!" or "{name} Wins!"
+- Add 'Play Again' button that emits play_again event
+- Add 'Leave Game' button that refreshes page to return to home
+- Updated App.tsx to route to GameOverPage for 'game_over' gameState
+- Typecheck passes for client
+- Note: Manual browser verification required (dev-browser skill not available)
+
+**Files created:**
+- `/client/src/components/GameOverPage.tsx` - Game over page component
+- `/client/src/components/GameOverPage.css` - Styled component with gold gradient for winner
+
+**Files changed:**
+- `/client/src/App.tsx` - Added routing for 'game_over' gameState
+
+**Learnings for future iterations:**
+- Gold gradient for winner: `linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)`
+- Trophy emoji: 🏆 (or font icon could be used)
+- Refresh page to return to home: `window.location.reload()`
+- Check if current player is winner: `winner?.id === currentPlayerId`
+- Winner's row in scoreboard has special styling (gold background, trophy icon)
+- Button stack for actions: play-again (primary) and leave-game (secondary)
+---
