@@ -63,7 +63,7 @@
         "Typecheck passes for both client and server"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {

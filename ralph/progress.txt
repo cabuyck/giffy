@@ -1,6 +1,6 @@
 # Ralph Progress Tracker for: ralph/giffy-mvp-game
 
-## Stories: 20 | Completed: 3 | In Progress: 0
+## Stories: 20 | Completed: 4 | In Progress: 0
 
 ## Story Status
 
@@ -9,7 +9,7 @@
 | US-001 | Set up project structure and shared types | Completed |
 | US-002 | Create Socket.io server with room management | Completed |
 | US-003 | Create client home page with create/join game UI | Completed |
-| US-004 | Implement Socket event handlers for room creation and joining | Pending |
+| US-004 | Implement Socket event handlers for room creation and joining | Completed |
 | US-005 | Create lobby page with room code display and player list | Pending |
 | US-006 | Implement game start and judge assignment logic | Pending |
 | US-007 | Add prompts list and random prompt selection | Pending |
@@ -108,4 +108,27 @@
 - Socket.io connection lifecycle: set up event listeners in useEffect with cleanup function
 - Disable form buttons when not connected to provide better feedback
 - Room code validation regex `/^[A-Z0-9]{4}$/i` ensures exactly 4 alphanumeric characters
+---
+
+## 2025-02-07 - US-004
+- Implemented Socket event handlers for room creation and joining flow
+- Added client state management for currentRoom and currentPlayerId
+- Server now emits room_created event (in addition to callback response) when room is created
+- Client handles player_joined events to update room state for all players
+- Client handles player_left events to update room state when players leave
+- Client handles player_disconnected events to mark players as disconnected in UI
+- Both create_room and join_room callbacks now store room and player ID on success
+- Used useCallback for event handler functions to stabilize useEffect dependencies
+- Typecheck passes for both client and server
+
+**Files changed:**
+- `/client/src/components/HomePage.tsx` - Added state management and event handlers
+- `/server/index.ts` - Added room_created event emission
+
+**Learnings for future iterations:**
+- Socket.io supports both callback responses AND event emissions - using both provides redundancy and better state sync
+- Use useCallback for event handlers passed to useEffect dependencies to prevent infinite re-renders
+- Client can find current player ID by matching name in room.players array (for join_room) or finding isHost player (for create_room)
+- The player_disconnected event only provides playerId - need to update room state by mapping over players array
+- State updates in event handlers should use functional setState pattern (prevRoom => ...) when derived from previous state
 ---
