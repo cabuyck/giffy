@@ -246,3 +246,31 @@
 - Always check if functionality already exists before starting a new story
 - The confirm_prompt handler transitions the game to 'submitting' state which triggers the next phase (GIF submissions)
 ---
+
+## 2025-02-07 - US-010
+- Created Giphy API client with searchGifs function
+- Added express.json() middleware to server for JSON parsing
+- Implemented /api/gifs/search Express endpoint with query parameter
+- Returns 20 GIF results with url and title fields
+- Filters for rating=pg-13 (covers pg and pg-13 content)
+- Handles API errors gracefully: returns empty array on failure, logs errors
+- Updated .env.example with GIPHY_API_KEY configuration
+- Typecheck passes for server
+
+**Files created:**
+- `/server/giphyClient.ts` - Giphy API client with searchGifs function
+
+**Files changed:**
+- `/server/index.ts` - Added Express middleware and /api/gifs/search endpoint
+- `/server/.env.example` - Added GIPHY_API_KEY configuration
+
+**Learnings for future iterations:**
+- The server uses ES modules (`"type": "module"` in package.json)
+- Use `app.use(express.json())` middleware for JSON body parsing in Express
+- When using `await response.json()`, cast to the expected type with `as GiphySearchResponse`
+- Giphy API search endpoint: `https://api.giphy.com/v1/gifs/search`
+- Giphy API query parameters: api_key, q (query), limit, rating
+- GIF URL path in response: `data[].images.original.url`
+- Error handling should catch and log errors but return fallback data (empty array) rather than crashing
+- Environment variables are read with `process.env.VARIABLE_NAME`
+---
