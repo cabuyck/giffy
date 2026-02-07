@@ -183,3 +183,19 @@
 - TotalRounds should equal the number of players so everyone gets to judge once
 - Connected player count should be calculated with `room.players.filter(p => p.isConnected).length` to exclude disconnected players
 ---
+
+## 2025-02-07 - US-007
+- Created prompts.ts with 100 diverse prompts for GIF submissions
+- Implemented getRandomPrompt() function to select random prompts
+- Reroll count tracking already existed in Room type (rerollCount field initialized to 0)
+- Typecheck passes for server
+
+**Files created:**
+- `/server/prompts.ts` - Array of 100 prompts and getRandomPrompt() function
+
+**Learnings for future iterations:**
+- The Room type already has a `rerollCount: number` field that was initialized to 0 in createRoom()
+- Prompts are exported as a const array for easy extension/modification
+- getRandomPrompt() uses `Math.floor(Math.random() * PROMPTS.length)` to select a random index
+- Import prompts with `import { getRandomPrompt } from './prompts';` from server/index.ts
+---
