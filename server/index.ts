@@ -330,6 +330,69 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('submit_gif', ({ gifUrl }) => {
+    console.log('submit_gif:', gifUrl);
+
+    const roomCode = socketToRoom.get(socket.id);
+    const playerId = socketToPlayer.get(socket.id);
+
+    if (!roomCode || !playerId) {
+      socket.emit('error', 'You are not in a room');
+      return;
+    }
+
+    const room = rooms.get(roomCode);
+    if (!room) {
+      socket.emit('error', 'Room not found');
+      return;
+    }
+
+    // Verify the player is not the judge
+    const judgeId = room.players[room.judgeIndex].id;
+    if (playerId === judgeId) {
+      socket.emit('error', 'The judge cannot submit a GIF');
+      return;
+    }
+
+    // Check if player has already submitted
+    const existingSubmission = room.submissions.find(s => s.playerId === playerId);
+    if (existingSubmission) {
+      socket.emit('error', 'You have already submitted a GIF');
+      return;
+    }
+
+    // Create submission
+    const submission = {
+      id: `submission_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      playerId,
+      gifUrl,
+    };
+
+    // Store submission
+    room.submissions.push(submission);
+
+    console.log(`Player ${playerId} submitted a GIF in room ${roomCode}`);
+
+    // Calculate submission progress
+    const nonJudgePlayers = room.players.filter(p => p.id !== judgeId && p.isConnected);
+    const totalSubmissionsNeeded = nonJudgePlayers.length;
+    const submissionCount = room.submissions.length;
+
+    // Emit submission_received event to all players
+    io.to(roomCode).emit('submission_received', {
+      count: submissionCount,
+      total: totalSubmissionsNeeded,
+    });
+
+    // Check if all players have submitted
+    if (submissionCount >= totalSubmissionsNeeded) {
+      console.log(`All players submitted in room ${roomCode}. Transitioning to judging.`);
+
+      // Set game state to judging
+      room.gameState = 'judging';
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
 
