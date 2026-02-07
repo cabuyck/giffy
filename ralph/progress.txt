@@ -475,3 +475,24 @@
 - Use existing player_left event to transition clients back to lobby
 - The lobby page will show updated room state with current scores
 ---
+
+## 2025-02-07 - US-019
+- Updated disconnect handler to advance judgeIndex if judge disconnects during game
+- If fewer than 2 players remain during active game, end game with game_over event
+- Added reconnection support: joining with same name reconnects to existing player
+- Reconnecting players keep their score, player ID, and stats
+- Updated name check to only validate against connected players
+- Emit game_over with reason when too few players remain
+- Typecheck passes for server
+
+**Files changed:**
+- `/server/index.ts` - Updated disconnect handler (112 added, 32 removed)
+
+**Learnings for future iterations:**
+- Check if disconnected player was judge: `room.players[room.judgeIndex]?.id === playerId`
+- Find new judge: iterate through players to find first connected player
+- Reconnection logic: find disconnected player by name, set `isConnected: true`, update socket maps
+- Name check for reconnection: `p.name === playerName && !p.isConnected` for existing, `p.isConnected` for duplicates
+- Emit game_over with reason: `io.to(roomCode).emit('game_over', { room, reason: '...' })`
+- Count connected players: `room.players.filter(p => p.isConnected).length`
+---
