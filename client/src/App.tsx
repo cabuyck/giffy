@@ -3,6 +3,7 @@ import HomePage from './components/HomePage';
 import LobbyPage from './components/LobbyPage';
 import JudgePromptPage from './components/JudgePromptPage';
 import GifSubmissionPage from './components/GifSubmissionPage';
+import JudgingPage from './components/JudgingPage';
 import type { Room } from '@/types';
 import type { ServerToClientEvents, ClientToServerEvents } from '@/types';
 import type { Socket } from 'socket.io-client';
@@ -39,6 +40,16 @@ function App() {
     if (currentRoom.gameState === 'submitting') {
       return (
         <GifSubmissionPage
+          room={currentRoom}
+          currentPlayerId={currentPlayerId}
+          socket={socket}
+        />
+      );
+    }
+
+    if (currentRoom.gameState === 'judging') {
+      return (
+        <JudgingPage
           room={currentRoom}
           currentPlayerId={currentPlayerId}
           socket={socket}
