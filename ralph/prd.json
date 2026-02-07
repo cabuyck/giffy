@@ -291,8 +291,8 @@
         "Typecheck passes for server"
       ],
       "priority": 18,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Keeping scores for consecutive games"
     },
     {
       "id": "US-019",

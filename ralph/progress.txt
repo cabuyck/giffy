@@ -455,3 +455,23 @@
 - Winner's row in scoreboard has special styling (gold background, trophy icon)
 - Button stack for actions: play-again (primary) and leave-game (secondary)
 ---
+
+## 2025-02-07 - US-018
+- Implemented play_again event handler on server
+- Reset currentRound, submissions, currentPrompt, judgeIndex, and rerollCount
+- Preserve players and their scores (scores accumulate across consecutive games)
+- Set gameState to 'lobby'
+- Emit player_left event to transition all players to lobby
+- Typecheck passes for server
+
+**Files changed:**
+- `/server/index.ts` - Added play_again event handler (36 lines added)
+
+**Learnings for future iterations:**
+- Decision made to keep scores across games for longer play sessions
+- Reset all game-specific state: `room.currentRound = 0`, `room.judgeIndex = 0`, etc.
+- Clear arrays: `room.submissions = []`
+- Keep player data intact: players and scores remain the same
+- Use existing player_left event to transition clients back to lobby
+- The lobby page will show updated room state with current scores
+---
