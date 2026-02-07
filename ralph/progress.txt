@@ -161,3 +161,25 @@
 - The `isHost` check is done by finding the current player in room.players and checking their isHost property
 - Connected player count should filter by `isConnected: true` since disconnected players remain in the array during games
 ---
+
+## 2025-02-07 - US-006
+- Implemented server-side game start logic with judge assignment
+- Added start_game event handler with host-only validation
+- Implemented gameState transition to 'prompt_selection'
+- Set judgeIndex to 0 for first game (will be rotated in future rounds)
+- Set totalRounds equal to number of players in the room
+- Emit game_started event to all players with judgeId
+- Added minimum player validation (2 players required to start)
+- Typecheck passes for server
+
+**Files changed:**
+- `/server/index.ts` - Added start_game event handler (48 lines added)
+
+**Learnings for future iterations:**
+- The server tracks the socket-to-player mapping with socketToPlayer Map, which is useful for validating permissions
+- For host-only events, verify `playerId === room.hostId` before executing the action
+- Use `socket.emit('error', ...)` for client-specific errors and `io.to(roomCode).emit(...)` for broadcasting to all players
+- The judgeIndex is used to reference `room.players[judgeIndex].id` to get the current judge
+- TotalRounds should equal the number of players so everyone gets to judge once
+- Connected player count should be calculated with `room.players.filter(p => p.isConnected).length` to exclude disconnected players
+---
