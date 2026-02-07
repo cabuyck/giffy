@@ -2,6 +2,7 @@ import { useState } from 'react';
 import HomePage from './components/HomePage';
 import LobbyPage from './components/LobbyPage';
 import JudgePromptPage from './components/JudgePromptPage';
+import GifSubmissionPage from './components/GifSubmissionPage';
 import type { Room } from '@/types';
 import type { ServerToClientEvents, ClientToServerEvents } from '@/types';
 import type { Socket } from 'socket.io-client';
@@ -28,6 +29,16 @@ function App() {
     if (currentRoom.gameState === 'prompt_selection') {
       return (
         <JudgePromptPage
+          room={currentRoom}
+          currentPlayerId={currentPlayerId}
+          socket={socket}
+        />
+      );
+    }
+
+    if (currentRoom.gameState === 'submitting') {
+      return (
+        <GifSubmissionPage
           room={currentRoom}
           currentPlayerId={currentPlayerId}
           socket={socket}
