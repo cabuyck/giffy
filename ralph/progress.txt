@@ -405,3 +405,26 @@
 - Current player highlighting: add class when `player.id === currentPlayerId`
 - Responsive grid for submissions: `grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))`
 ---
+
+## 2025-02-07 - US-016
+- Implemented next_round event handler on server
+- Increment currentRound and advance judgeIndex (wrap to 0 if at end)
+- If currentRound > totalRounds, set gameState to 'game_over'
+- Otherwise, set gameState to 'prompt_selection' with new judge
+- Clear submissions, currentPrompt, and reset rerollCount for new round
+- Generate and send initial prompt to new judge
+- Emit next_round event with judgeId, round, and room
+- Emit game_over event when game ends
+- Typecheck passes for server
+
+**Files changed:**
+- `/server/index.ts` - Added next_round event handler (77 lines added)
+
+**Learnings for future iterations:**
+- Wrap judge index with modulo: `room.judgeIndex = (room.judgeIndex + 1) % room.players.length`
+- Clear round-specific data: `room.submissions = []`, `room.currentPrompt = null`, `room.rerollCount = 0`
+- Compare rounds: `if (room.currentRound > room.totalRounds)` to detect game end
+- Find new judge's socket ID using socketToRoom and socketToPlayer maps
+- The prompt_rerolled event is sent only to the new judge to start their selection
+- Emit different events based on game state: next_round for continuing, game_over for ending
+---
