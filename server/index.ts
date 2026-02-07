@@ -135,14 +135,37 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // Check max players (4 players max)
+    // Check for reconnection: find a disconnected player with the same name
+    const disconnectedPlayer = room.players.find(p => p.name === playerName && !p.isConnected);
+
+    if (disconnectedPlayer) {
+      // Reconnect the player
+      disconnectedPlayer.isConnected = true;
+
+      // Update socket associations
+      socketToRoom.set(socket.id, roomCode);
+      socketToPlayer.set(socket.id, disconnectedPlayer.id);
+
+      // Join socket to room
+      socket.join(roomCode);
+
+      console.log(`${playerName} (${disconnectedPlayer.id}) reconnected to room ${roomCode}`);
+
+      // Notify all players in room
+      io.to(roomCode).emit('player_joined', { room });
+
+      callback({ room });
+      return;
+    }
+
+    // Check max players (4 players max) - only count connected players or total slots
     if (room.players.length >= 4) {
       callback({ error: 'Room is full (max 4 players)' });
       return;
     }
 
-    // Check for duplicate names
-    const nameExists = room.players.some(p => p.name === playerName);
+    // Check for duplicate names among connected players
+    const nameExists = room.players.some(p => p.name === playerName && p.isConnected);
     if (nameExists) {
       callback({ error: 'Name already taken in this room' });
       return;
@@ -578,39 +601,96 @@ io.on('connection', (socket) => {
 
     // Find and mark player as disconnected
     const player = room.players.find(p => p.id === playerId);
-    if (player) {
-      player.isConnected = false;
-      console.log(`Player ${player.name} (${playerId}) disconnected from room ${roomCode}`);
+    if (!player) {
+      console.log(`Player ${playerId} not found in room ${roomCode}`);
+      return;
+    }
 
-      // Notify other players
-      socket.to(roomCode).emit('player_disconnected', { playerId });
+    player.isConnected = false;
+    console.log(`Player ${player.name} (${playerId}) disconnected from room ${roomCode}`);
 
-      // Remove player if they were the last one or if room is in lobby
-      // For active games, we keep them marked as disconnected
-      if (room.gameState === 'lobby' || room.players.filter(p => p.isConnected).length === 0) {
-        // Remove disconnected player
-        room.players = room.players.filter(p => p.id !== playerId);
+    // Check if disconnected player was the judge
+    const wasJudge = room.players[room.judgeIndex]?.id === playerId;
 
-        // If host disconnected and room is in lobby, promote next player or delete room
-        if (playerId === room.hostId) {
-          if (room.players.length > 0) {
-            // Promote next player to host
-            room.players[0].isHost = true;
-            room.hostId = room.players[0].id;
-            console.log(`New host for room ${roomCode}: ${room.players[0].name}`);
-          } else {
-            // Delete empty room
-            rooms.delete(roomCode);
-            console.log(`Room ${roomCode} deleted (no players)`);
-          }
-        } else if (room.players.length === 0) {
+    // Notify other players
+    socket.to(roomCode).emit('player_disconnected', { playerId });
+
+    // Count connected players
+    const connectedPlayers = room.players.filter(p => p.isConnected);
+
+    // If fewer than 2 players remain and game is in progress, end the game
+    if (connectedPlayers.length < 2 && room.gameState !== 'lobby') {
+      console.log(`Room ${roomCode} has fewer than 2 players. Ending game.`);
+
+      room.gameState = 'game_over';
+
+      io.to(roomCode).emit('game_over', {
+        room,
+        reason: 'Too many players disconnected',
+      });
+
+      // Remove player
+      room.players = room.players.filter(p => p.id !== playerId);
+
+      // Clean up and return
+      socketToRoom.delete(socket.id);
+      socketToPlayer.delete(socket.id);
+
+      // Delete room if empty
+      if (room.players.length === 0) {
+        rooms.delete(roomCode);
+        console.log(`Room ${roomCode} deleted (no players)`);
+      }
+
+      return;
+    }
+
+    // Remove player if they were the last one or if room is in lobby
+    // For active games, we keep them marked as disconnected
+    if (room.gameState === 'lobby' || connectedPlayers.length === 0) {
+      // Remove disconnected player
+      room.players = room.players.filter(p => p.id !== playerId);
+
+      // If host disconnected and room is in lobby, promote next player or delete room
+      if (playerId === room.hostId) {
+        if (room.players.length > 0) {
+          // Promote next player to host
+          room.players[0].isHost = true;
+          room.hostId = room.players[0].id;
+          console.log(`New host for room ${roomCode}: ${room.players[0].name}`);
+        } else {
           // Delete empty room
           rooms.delete(roomCode);
           console.log(`Room ${roomCode} deleted (no players)`);
-        } else {
-          // Notify remaining players of updated room state
-          io.to(roomCode).emit('player_left', { room });
         }
+      } else if (room.players.length === 0) {
+        // Delete empty room
+        rooms.delete(roomCode);
+        console.log(`Room ${roomCode} deleted (no players)`);
+      } else {
+        // Notify remaining players of updated room state
+        io.to(roomCode).emit('player_left', { room });
+      }
+    } else {
+      // Game is in progress - handle judge rotation if needed
+      if (wasJudge && connectedPlayers.length >= 2) {
+        // Find the new judge (next connected player)
+        let newJudgeIndex = 0;
+        for (let i = 0; i < room.players.length; i++) {
+          if (room.players[i].isConnected) {
+            newJudgeIndex = i;
+            break;
+          }
+        }
+
+        const oldJudgeId = room.players[room.judgeIndex]?.id;
+        room.judgeIndex = newJudgeIndex;
+        const newJudgeId = room.players[newJudgeIndex].id;
+
+        console.log(`Judge ${oldJudgeId} disconnected. New judge: ${room.players[newJudgeIndex].name}`);
+
+        // Broadcast room update with new judge
+        io.to(roomCode).emit('player_left', { room });
       }
     }
 
