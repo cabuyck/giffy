@@ -1,6 +1,6 @@
 # Ralph Progress Tracker for: ralph/giffy-mvp-game
 
-## Stories: 20 | Completed: 2 | In Progress: 0
+## Stories: 20 | Completed: 3 | In Progress: 0
 
 ## Story Status
 
@@ -8,7 +8,7 @@
 |----|-------|--------|
 | US-001 | Set up project structure and shared types | Completed |
 | US-002 | Create Socket.io server with room management | Completed |
-| US-003 | Create client home page with create/join game UI | Pending |
+| US-003 | Create client home page with create/join game UI | Completed |
 | US-004 | Implement Socket event handlers for room creation and joining | Pending |
 | US-005 | Create lobby page with room code display and player list | Pending |
 | US-006 | Implement game start and judge assignment logic | Pending |
@@ -78,3 +78,34 @@
 - When host disconnects in lobby, promote first remaining player to host
 ---
 
+## 2025-02-07 - US-003
+- Created HomePage component with Create Game and Join Game modes
+- Implemented mode toggle with tab-style buttons
+- Added Socket.io client connection with connection status indicator
+- Implemented room code validation: 4-character alphanumeric, auto-uppercase, excludes ambiguous chars
+- Added form validation for player names (required, max 20 chars)
+- Created responsive gradient-styled UI with purple theme
+- Added Vite environment types for VITE_SOCKET_URL in vite-env.d.ts
+- Fixed tsconfig to exclude vite.config.ts from typecheck
+- Typecheck passes for client
+- Note: Manual browser verification required (dev-browser skill not available in environment)
+
+**Files created:**
+- `/client/src/components/HomePage.tsx` - Main home page component
+- `/client/src/components/HomePage.css` - Styled component with gradient design
+- `/client/src/vite-env.d.ts` - Vite environment variable types
+- `/client/.env.example` - Example environment file
+
+**Files changed:**
+- `/client/src/App.tsx` - Updated to use HomePage component
+- `/client/tsconfig.json` - Added exclude for vite config files
+
+**Learnings for future iterations:**
+- Vite environment variables need type definitions in vite-env.d.ts with ImportMetaEnv interface
+- Auto-uppercase input for room codes improves UX (user doesn't need to hold shift)
+- Use `.replace(/[^A-Z0-9]/g, '')` to sanitize alphanumeric input
+- Socket.io client types: `Socket<ServerToClientEvents, ClientToServerEvents>` - note the type order is reversed from server
+- Socket.io connection lifecycle: set up event listeners in useEffect with cleanup function
+- Disable form buttons when not connected to provide better feedback
+- Room code validation regex `/^[A-Z0-9]{4}$/i` ensures exactly 4 alphanumeric characters
+---
