@@ -307,3 +307,24 @@
 - Judge sees different UI in same component - check `isJudge` and conditionally render
 - Use `loading="lazy"` on images for better performance with many GIFs
 ---
+
+## 2025-02-07 - US-012
+- Implemented submit_gif event handler on server
+- Server stores submission in Room.submissions array with unique ID
+- Server emits submission_received event with count/total to all players
+- When all non-judge players submitted, set gameState to 'judging'
+- Added validation: judge cannot submit, duplicate submissions prevented
+- Only connected non-judge players count toward submission total
+- Typecheck passes for server
+
+**Files changed:**
+- `/server/index.ts` - Added submit_gif event handler (63 lines added)
+
+**Learnings for future iterations:**
+- Generate unique submission IDs with `submission_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+- Calculate total submissions needed: `room.players.filter(p => p.id !== judgeId && p.isConnected).length`
+- The submission_received event provides progress feedback (count/total) to all players
+- Check for existing submissions with `room.submissions.find(s => s.playerId === playerId)`
+- Judge ID is at `room.players[room.judgeIndex].id` - use this to validate judge-only actions
+- Broadcast submission_received with `io.to(roomCode).emit()` so all players see the counter update
+---

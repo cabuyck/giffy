@@ -192,7 +192,7 @@
         "Typecheck passes for server"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
