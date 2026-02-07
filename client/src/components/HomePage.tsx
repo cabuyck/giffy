@@ -7,15 +7,21 @@ const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
 
 type GameMode = 'create' | 'join';
 
-function HomePage() {
+interface HomePageProps {
+  onRoomJoined: (room: Room) => void;
+  onPlayerIdSet: (playerId: string) => void;
+  onSocketReady: (socket: Socket<ServerToClientEvents, ClientToServerEvents> | null) => void;
+}
+
+function HomePage({ onRoomJoined, onPlayerIdSet, onSocketReady }: HomePageProps) {
   const [mode, setMode] = useState<GameMode>('create');
   const [playerName, setPlayerName] = useState('');
   const [roomCode, setRoomCode] = useState('');
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
   const [error, setError] = useState('');
   const [isConnected, setIsConnected] = useState(false);
-  const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
-  const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
+  // Note: currentRoom and currentPlayerId are managed by App.tsx
+  // through callbacks - we don't need local state for these
 
   // Validate room code format (4 characters, alphanumeric)
   const isValidRoomCode = (code: string): boolean => {
@@ -24,26 +30,18 @@ function HomePage() {
 
   // Handle player_joined event - update room state
   const handlePlayerJoined = useCallback((data: RoomJoinedEvent) => {
-    setCurrentRoom(data.room);
-  }, []);
+    onRoomJoined(data.room);
+  }, [onRoomJoined]);
 
   // Handle player_left event - update room state
   const handlePlayerLeft = useCallback((data: PlayerLeftEvent) => {
-    setCurrentRoom(data.room);
-  }, []);
+    onRoomJoined(data.room);
+  }, [onRoomJoined]);
 
-  // Handle player_disconnected event
-  const handlePlayerDisconnected = useCallback((data: { playerId: string }) => {
-    // Update room to reflect disconnected player
-    setCurrentRoom(prevRoom => {
-      if (!prevRoom) return null;
-      return {
-        ...prevRoom,
-        players: prevRoom.players.map(p =>
-          p.id === data.playerId ? { ...p, isConnected: false } : p
-        ),
-      };
-    });
+  // Handle player_disconnected event - won't be handled on HomePage
+  // since we navigate to LobbyPage immediately after joining
+  const handlePlayerDisconnected = useCallback(() => {
+    // No-op - LobbyPage will handle these events
   }, []);
 
   useEffect(() => {
@@ -59,11 +57,11 @@ function HomePage() {
 
     socketInstance.on('room_created', (data: RoomCreatedEvent) => {
       console.log('Room created:', data);
-      setCurrentRoom(data.room);
+      onRoomJoined(data.room);
       // Find the current player ID from the room
       const hostPlayer = data.room.players.find(p => p.isHost);
       if (hostPlayer) {
-        setCurrentPlayerId(hostPlayer.id);
+        onPlayerIdSet(hostPlayer.id);
       }
     });
 
@@ -78,6 +76,7 @@ function HomePage() {
     });
 
     setSocket(socketInstance);
+    onSocketReady(socketInstance);
 
     return () => {
       socketInstance.disconnect();
@@ -103,10 +102,10 @@ function HomePage() {
         setError(response.error);
       } else {
         // Store room and player ID from successful response
-        setCurrentRoom(response.room);
+        onRoomJoined(response.room);
         const hostPlayer = response.room.players.find(p => p.isHost);
         if (hostPlayer) {
-          setCurrentPlayerId(hostPlayer.id);
+          onPlayerIdSet(hostPlayer.id);
         }
       }
     });
@@ -143,10 +142,10 @@ function HomePage() {
           setError(response.error);
         } else {
           // Store room and find current player ID
-          setCurrentRoom(response.room);
+          onRoomJoined(response.room);
           const joiningPlayer = response.room.players.find(p => p.name === playerName.trim());
           if (joiningPlayer) {
-            setCurrentPlayerId(joiningPlayer.id);
+            onPlayerIdSet(joiningPlayer.id);
           }
         }
       }
