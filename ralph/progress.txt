@@ -376,3 +376,32 @@
 - The round_results event includes the full room object so clients can see updated scores
 - Room object includes players array with their scores, submissions array with all GIFs
 ---
+
+## 2025-02-07 - US-015
+- Created RoundResultsPage component shown to all players
+- Display scoreboard with all players ranked by score (descending)
+- Highlight current player in scoreboard with border and 'You' badge
+- Show rank (#1, #2, etc.) and points for each player
+- Reveal all submissions with their submitter names
+- Each submission shows GIF with player name below it
+- Only judge sees 'Next Round' button
+- Non-judge players see waiting message
+- Updated App.tsx to route to RoundResultsPage for 'round_results' gameState
+- Typecheck passes for client
+- Note: Manual browser verification required (dev-browser skill not available)
+
+**Files created:**
+- `/client/src/components/RoundResultsPage.tsx` - Round results page component
+- `/client/src/components/RoundResultsPage.css` - Styled component with scoreboard
+
+**Files changed:**
+- `/client/src/App.tsx` - Added routing for 'round_results' gameState
+
+**Learnings for future iterations:**
+- Sort players by score: `[...room.players].sort((a, b) => b.score - a.score)`
+- Find submitter for each submission: `room.players.find(p => p.id === submission.playerId)`
+- Scoreboard displays rank with `index + 1` from sorted array
+- Use flexbox for scoreboard items: `display: flex; align-items: center; gap: 1rem`
+- Current player highlighting: add class when `player.id === currentPlayerId`
+- Responsive grid for submissions: `grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))`
+---
