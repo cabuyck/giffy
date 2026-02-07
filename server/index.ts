@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import type { Room, ServerToClientEvents, ClientToServerEvents, Player, InterServerEvents, SocketData } from '@/types';
+import { getRandomPrompt } from './prompts';
 
 const app = express();
 const httpServer = createServer(app);
@@ -189,6 +190,13 @@ io.on('connection', (socket) => {
     // Set totalRounds equal to number of players
     room.totalRounds = room.players.length;
 
+    // Reset reroll count
+    room.rerollCount = 0;
+
+    // Generate initial prompt
+    const initialPrompt = getRandomPrompt();
+    room.currentPrompt = initialPrompt;
+
     // Get judge ID
     const judgeId = room.players[room.judgeIndex].id;
 
@@ -196,6 +204,106 @@ io.on('connection', (socket) => {
 
     // Emit game_started event to all players
     io.to(roomCode).emit('game_started', { judgeId, room });
+
+    // Send first prompt to judge
+    const judgeSocketId = Array.from(socketToRoom.entries())
+      .find(([_, rc]) => rc === roomCode && socketToPlayer.get(_!) === judgeId)?.[0];
+
+    if (judgeSocketId) {
+      io.to(judgeSocketId).emit('prompt_rerolled', {
+        prompt: initialPrompt,
+        rerollsRemaining: 3,
+      });
+    }
+  });
+
+  socket.on('reroll_prompt', () => {
+    console.log('reroll_prompt');
+
+    const roomCode = socketToRoom.get(socket.id);
+    const playerId = socketToPlayer.get(socket.id);
+
+    if (!roomCode || !playerId) {
+      socket.emit('error', 'You are not in a room');
+      return;
+    }
+
+    const room = rooms.get(roomCode);
+    if (!room) {
+      socket.emit('error', 'Room not found');
+      return;
+    }
+
+    // Verify the player is the judge
+    const judgeId = room.players[room.judgeIndex].id;
+    if (playerId !== judgeId) {
+      socket.emit('error', 'Only the judge can reroll the prompt');
+      return;
+    }
+
+    // Check reroll limit (max 3 rerolls)
+    if (room.rerollCount >= 3) {
+      socket.emit('error', 'Maximum rerolls reached (3)');
+      return;
+    }
+
+    // Increment reroll count
+    room.rerollCount++;
+
+    // Get new prompt
+    const newPrompt = getRandomPrompt();
+    room.currentPrompt = newPrompt;
+
+    console.log(`Prompt rerolled in room ${roomCode}. Rerolls used: ${room.rerollCount}/3`);
+
+    // Send new prompt to judge
+    const rerollsRemaining = 3 - room.rerollCount;
+    socket.emit('prompt_rerolled', {
+      prompt: newPrompt,
+      rerollsRemaining,
+    });
+  });
+
+  socket.on('confirm_prompt', ({ prompt }) => {
+    console.log('confirm_prompt:', prompt);
+
+    const roomCode = socketToRoom.get(socket.id);
+    const playerId = socketToPlayer.get(socket.id);
+
+    if (!roomCode || !playerId) {
+      socket.emit('error', 'You are not in a room');
+      return;
+    }
+
+    const room = rooms.get(roomCode);
+    if (!room) {
+      socket.emit('error', 'Room not found');
+      return;
+    }
+
+    // Verify the player is the judge
+    const judgeId = room.players[room.judgeIndex].id;
+    if (playerId !== judgeId) {
+      socket.emit('error', 'Only the judge can confirm the prompt');
+      return;
+    }
+
+    // Set game state to submitting
+    room.gameState = 'submitting';
+
+    // Store the confirmed prompt
+    room.currentPrompt = prompt;
+
+    // Reset reroll count for next round
+    room.rerollCount = 0;
+
+    console.log(`Prompt confirmed in room ${roomCode}: "${prompt}"`);
+
+    // Emit prompt_selected event to all players
+    io.to(roomCode).emit('prompt_selected', {
+      prompt,
+      judgeId,
+    });
   });
 
   socket.on('disconnect', () => {

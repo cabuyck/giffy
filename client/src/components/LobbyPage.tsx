@@ -1,14 +1,17 @@
 import { Socket } from 'socket.io-client';
+import { useEffect } from 'react';
 import type { ServerToClientEvents, ClientToServerEvents, Room } from '@/types';
+import type { GameStartedEvent } from '@/types';
 import './LobbyPage.css';
 
 interface LobbyPageProps {
   room: Room;
   currentPlayerId: string;
   socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
+  onRoomUpdate?: (room: Room) => void;
 }
 
-function LobbyPage({ room, currentPlayerId, socket }: LobbyPageProps) {
+function LobbyPage({ room, currentPlayerId, socket, onRoomUpdate }: LobbyPageProps) {
   // Find current player to check if they're the host
   const currentPlayer = room.players.find(p => p.id === currentPlayerId);
   const isHost = currentPlayer?.isHost || false;
@@ -23,6 +26,24 @@ function LobbyPage({ room, currentPlayerId, socket }: LobbyPageProps) {
   };
 
   const canStartGame = connectedPlayerCount >= 2;
+
+  // Handle game_started event
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleGameStarted = (data: GameStartedEvent) => {
+      console.log('Game started:', data);
+      if (onRoomUpdate) {
+        onRoomUpdate(data.room);
+      }
+    };
+
+    socket.on('game_started', handleGameStarted);
+
+    return () => {
+      socket.off('game_started', handleGameStarted);
+    };
+  }, [socket, onRoomUpdate]);
 
   return (
     <div className="lobby-page">

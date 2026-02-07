@@ -65,6 +65,11 @@ export interface GameStartedEvent {
   room: Room;
 }
 
+export interface PromptRerolledEvent {
+  prompt: string;
+  rerollsRemaining: number;
+}
+
 export interface ConfirmPromptEvent {
   prompt: string;
 }
@@ -113,6 +118,7 @@ export type ServerToClientEvents = {
   player_left: (data: PlayerLeftEvent) => void;
   error: (message: string) => void;
   game_started: (data: GameStartedEvent) => void;
+  prompt_rerolled: (data: PromptRerolledEvent) => void;
   prompt_selected: (data: PromptSelectedEvent) => void;
   submission_received: (data: SubmissionReceivedEvent) => void;
   round_results: (data: RoundResultsEvent) => void;
