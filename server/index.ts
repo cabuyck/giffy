@@ -446,6 +446,83 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('next_round', () => {
+    console.log('next_round');
+
+    const roomCode = socketToRoom.get(socket.id);
+    const playerId = socketToPlayer.get(socket.id);
+
+    if (!roomCode || !playerId) {
+      socket.emit('error', 'You are not in a room');
+      return;
+    }
+
+    const room = rooms.get(roomCode);
+    if (!room) {
+      socket.emit('error', 'Room not found');
+      return;
+    }
+
+    // Verify the player is the judge
+    const judgeId = room.players[room.judgeIndex].id;
+    if (playerId !== judgeId) {
+      socket.emit('error', 'Only the current judge can start the next round');
+      return;
+    }
+
+    // Increment current round
+    room.currentRound += 1;
+
+    // Advance judge index (wrap to 0 if at end)
+    room.judgeIndex = (room.judgeIndex + 1) % room.players.length;
+
+    // Get new judge ID
+    const newJudgeId = room.players[room.judgeIndex].id;
+
+    console.log(`Room ${roomCode} advancing to round ${room.currentRound}. New judge: ${room.players[room.judgeIndex].name}`);
+
+    // Clear submissions for the new round
+    room.submissions = [];
+    room.currentPrompt = null;
+    room.rerollCount = 0;
+
+    // Check if game is over
+    if (room.currentRound > room.totalRounds) {
+      console.log(`Game over in room ${roomCode}`);
+
+      // Set game state to game_over
+      room.gameState = 'game_over';
+
+      // Emit game_over event to all players
+      io.to(roomCode).emit('game_over', { room });
+    } else {
+      // Set game state to prompt_selection
+      room.gameState = 'prompt_selection';
+
+      // Generate initial prompt for new round
+      const initialPrompt = getRandomPrompt();
+      room.currentPrompt = initialPrompt;
+
+      // Emit next_round event to all players
+      io.to(roomCode).emit('next_round', {
+        judgeId: newJudgeId,
+        round: room.currentRound,
+        room,
+      });
+
+      // Send first prompt to new judge
+      const judgeSocketId = Array.from(socketToRoom.entries())
+        .find(([_, rc]) => rc === roomCode && socketToPlayer.get(_!) === newJudgeId)?.[0];
+
+      if (judgeSocketId) {
+        io.to(judgeSocketId).emit('prompt_rerolled', {
+          prompt: initialPrompt,
+          rerollsRemaining: 3,
+        });
+      }
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
 
