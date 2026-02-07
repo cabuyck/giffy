@@ -393,6 +393,59 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('select_winner', ({ submissionId }) => {
+    console.log('select_winner:', submissionId);
+
+    const roomCode = socketToRoom.get(socket.id);
+    const playerId = socketToPlayer.get(socket.id);
+
+    if (!roomCode || !playerId) {
+      socket.emit('error', 'You are not in a room');
+      return;
+    }
+
+    const room = rooms.get(roomCode);
+    if (!room) {
+      socket.emit('error', 'Room not found');
+      return;
+    }
+
+    // Verify the player is the judge
+    const judgeId = room.players[room.judgeIndex].id;
+    if (playerId !== judgeId) {
+      socket.emit('error', 'Only the judge can select a winner');
+      return;
+    }
+
+    // Find the submission
+    const winningSubmission = room.submissions.find(s => s.id === submissionId);
+    if (!winningSubmission) {
+      socket.emit('error', 'Submission not found');
+      return;
+    }
+
+    // Find the player who submitted and increment their score
+    const winner = room.players.find(p => p.id === winningSubmission.playerId);
+    if (!winner) {
+      socket.emit('error', 'Winner not found');
+      return;
+    }
+
+    winner.score += 1;
+
+    console.log(`Player ${winner.name} (${winner.id}) won the round in room ${roomCode}`);
+
+    // Set game state to round_results
+    room.gameState = 'round_results';
+
+    // Emit round_results event to all players
+    io.to(roomCode).emit('round_results', {
+      winnerId: winner.id,
+      submissions: room.submissions,
+      room,
+    });
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
 
