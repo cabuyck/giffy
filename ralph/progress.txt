@@ -199,3 +199,37 @@
 - getRandomPrompt() uses `Math.floor(Math.random() * PROMPTS.length)` to select a random index
 - Import prompts with `import { getRandomPrompt } from './prompts';` from server/index.ts
 ---
+
+## 2025-02-07 - US-008
+- Created JudgePromptPage component with prompt display and selection controls
+- Implemented prompt card with gradient styling matching the app theme
+- Added 'Next Prompt' button that disables after 3 rerolls
+- Added 'Start Round' button to confirm prompt and advance game
+- Non-judge players see a waiting state with loading spinner
+- Updated App.tsx to route based on gameState (lobby vs prompt_selection)
+- Added PromptRerolledEvent type for server->client communication
+- Updated server to handle reroll_prompt and confirm_prompt events
+- Server generates initial prompt when game starts and sends to judge
+- Server validates reroll limit (max 3) and judge-only permissions
+- Typecheck passes for both client and server
+- Note: Manual browser verification required (dev-browser skill not available in environment)
+
+**Files created:**
+- `/client/src/components/JudgePromptPage.tsx` - Judge prompt selection page component
+- `/client/src/components/JudgePromptPage.css` - Styled component with gradient design
+
+**Files changed:**
+- `/client/src/App.tsx` - Added gameState-based routing logic
+- `/client/src/components/LobbyPage.tsx` - Added game_started event handler and onRoomUpdate callback
+- `/shared/types.ts` - Added PromptRerolledEvent type
+- `/server/index.ts` - Added reroll_prompt and confirm_prompt handlers, updated start_game to send initial prompt
+
+**Learnings for future iterations:**
+- App.tsx routes based on `room.gameState` - this is the single source of truth for page navigation
+- The pattern for state updates is: child components receive `onRoomUpdate` callback and call it with new room data from events
+- For judge-only events, verify `playerId === room.players[room.judgeIndex].id` before executing
+- The prompt_rerolled event is only sent to the judge socket (using `socket.emit()`), while game_started is broadcast to all (using `io.to(roomCode).emit()`)
+- When sending to a specific player by ID, you need to find their socket ID via `Array.from(socketToRoom.entries()).find(...)`
+- The current prompt is stored in both `room.currentPrompt` and client state (`currentPrompt`) for UI consistency
+- CSS uses a consistent gradient theme: `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`
+---
