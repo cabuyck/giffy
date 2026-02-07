@@ -357,3 +357,22 @@
 - Room.submissions array contains all submissions with playerId and gifUrl
 - The prompt is displayed to maintain context for the judge
 ---
+
+## 2025-02-07 - US-014
+- Implemented select_winner event handler on server
+- Server finds playerId from submission and increments their score by 1
+- Server emits round_results event with winnerId, submissions, and room (with scores)
+- Validation: only judge can select winner, submission must exist, player must exist
+- Set gameState to 'round_results' after winner is selected
+- Typecheck passes for server
+
+**Files changed:**
+- `/server/index.ts` - Added select_winner event handler (53 lines added)
+
+**Learnings for future iterations:**
+- Find submission by ID: `room.submissions.find(s => s.id === submissionId)`
+- Find player by ID: `room.players.find(p => p.id === winningSubmission.playerId)`
+- Increment score: `winner.score += 1` (or `winner.score = winner.score + 1`)
+- The round_results event includes the full room object so clients can see updated scores
+- Room object includes players array with their scores, submissions array with all GIFs
+---
