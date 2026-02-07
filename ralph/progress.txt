@@ -1,6 +1,6 @@
 # Ralph Progress Tracker for: ralph/giffy-mvp-game
 
-## Stories: 20 | Completed: 4 | In Progress: 0
+## Stories: 20 | Completed: 5 | In Progress: 0
 
 ## Story Status
 
@@ -10,7 +10,7 @@
 | US-002 | Create Socket.io server with room management | Completed |
 | US-003 | Create client home page with create/join game UI | Completed |
 | US-004 | Implement Socket event handlers for room creation and joining | Completed |
-| US-005 | Create lobby page with room code display and player list | Pending |
+| US-005 | Create lobby page with room code display and player list | Completed |
 | US-006 | Implement game start and judge assignment logic | Pending |
 | US-007 | Add prompts list and random prompt selection | Pending |
 | US-008 | Create judge prompt selection page | Pending |
@@ -131,4 +131,33 @@
 - Client can find current player ID by matching name in room.players array (for join_room) or finding isHost player (for create_room)
 - The player_disconnected event only provides playerId - need to update room state by mapping over players array
 - State updates in event handlers should use functional setState pattern (prevRoom => ...) when derived from previous state
+---
+
+## 2025-02-07 - US-005
+- Created LobbyPage component that displays after joining a room
+- Implemented room code display in large, prominent monospace font
+- Added player list with visual badges: Host, You, Disconnected
+- Host sees 'Start Game' button, other players see waiting message
+- Start Game button is disabled when fewer than 2 players
+- Implemented responsive purple-themed UI matching HomePage design
+- Updated App.tsx to handle routing between HomePage and LobbyPage via conditional rendering
+- Updated HomePage to pass room and player data to App via callback props
+- Typecheck passes for client
+- Note: Manual browser verification required (dev-browser skill not available in environment)
+
+**Files created:**
+- `/client/src/components/LobbyPage.tsx` - Lobby page component
+- `/client/src/components/LobbyPage.css` - Styled component with purple gradient design
+
+**Files changed:**
+- `/client/src/App.tsx` - Added routing logic between HomePage and LobbyPage
+- `/client/src/components/HomePage.tsx` - Added callback props to pass room/player/socket data
+
+**Learnings for future iterations:**
+- Using callback props from child to parent for state lifting is a clean pattern for simple navigation
+- Socket.io Socket type: `Socket<ServerToClientEvents, ClientToServerEvents>` - import from 'socket.io-client'
+- Room code display uses monospace font for better character readability (Courier New)
+- Player badges use inline-flex with small font sizes (0.625rem) and uppercase text-transform for compact labels
+- The `isHost` check is done by finding the current player in room.players and checking their isHost property
+- Connected player count should filter by `isConnected: true` since disconnected players remain in the array during games
 ---
