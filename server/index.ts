@@ -94,6 +94,9 @@ io.on('connection', (socket) => {
 
     console.log(`Room ${roomCode} created by ${playerName} (${host.id})`);
 
+    // Send room_created event to the creating client
+    socket.emit('room_created', { roomCode, room });
+
     callback({ roomCode, room });
   });
 

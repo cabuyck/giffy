@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import type { ServerToClientEvents, ClientToServerEvents, RoomCreatedEvent, RoomJoinedEvent } from '@/types';
+import type { ServerToClientEvents, ClientToServerEvents, RoomCreatedEvent, RoomJoinedEvent, PlayerLeftEvent, Room } from '@/types';
 import './HomePage.css';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
@@ -14,11 +14,37 @@ function HomePage() {
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
   const [error, setError] = useState('');
   const [isConnected, setIsConnected] = useState(false);
+  const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
+  const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
 
   // Validate room code format (4 characters, alphanumeric)
   const isValidRoomCode = (code: string): boolean => {
     return /^[A-Z0-9]{4}$/i.test(code);
   };
+
+  // Handle player_joined event - update room state
+  const handlePlayerJoined = useCallback((data: RoomJoinedEvent) => {
+    setCurrentRoom(data.room);
+  }, []);
+
+  // Handle player_left event - update room state
+  const handlePlayerLeft = useCallback((data: PlayerLeftEvent) => {
+    setCurrentRoom(data.room);
+  }, []);
+
+  // Handle player_disconnected event
+  const handlePlayerDisconnected = useCallback((data: { playerId: string }) => {
+    // Update room to reflect disconnected player
+    setCurrentRoom(prevRoom => {
+      if (!prevRoom) return null;
+      return {
+        ...prevRoom,
+        players: prevRoom.players.map(p =>
+          p.id === data.playerId ? { ...p, isConnected: false } : p
+        ),
+      };
+    });
+  }, []);
 
   useEffect(() => {
     const socketInstance = io(SOCKET_URL);
@@ -32,14 +58,20 @@ function HomePage() {
     });
 
     socketInstance.on('room_created', (data: RoomCreatedEvent) => {
-      // TODO: Navigate to lobby page
       console.log('Room created:', data);
+      setCurrentRoom(data.room);
+      // Find the current player ID from the room
+      const hostPlayer = data.room.players.find(p => p.isHost);
+      if (hostPlayer) {
+        setCurrentPlayerId(hostPlayer.id);
+      }
     });
 
-    socketInstance.on('player_joined', (data: RoomJoinedEvent) => {
-      // TODO: Navigate to lobby page
-      console.log('Player joined:', data);
-    });
+    socketInstance.on('player_joined', handlePlayerJoined);
+
+    socketInstance.on('player_left', handlePlayerLeft);
+
+    socketInstance.on('player_disconnected', handlePlayerDisconnected);
 
     socketInstance.on('error', (message: string) => {
       setError(message);
@@ -50,7 +82,7 @@ function HomePage() {
     return () => {
       socketInstance.disconnect();
     };
-  }, []);
+  }, [handlePlayerJoined, handlePlayerLeft, handlePlayerDisconnected]);
 
   const handleCreateGame = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +101,13 @@ function HomePage() {
     socket.emit('create_room', { playerName: playerName.trim() }, (response) => {
       if ('error' in response) {
         setError(response.error);
+      } else {
+        // Store room and player ID from successful response
+        setCurrentRoom(response.room);
+        const hostPlayer = response.room.players.find(p => p.isHost);
+        if (hostPlayer) {
+          setCurrentPlayerId(hostPlayer.id);
+        }
       }
     });
   };
@@ -102,6 +141,13 @@ function HomePage() {
       (response) => {
         if ('error' in response) {
           setError(response.error);
+        } else {
+          // Store room and find current player ID
+          setCurrentRoom(response.room);
+          const joiningPlayer = response.room.players.find(p => p.name === playerName.trim());
+          if (joiningPlayer) {
+            setCurrentPlayerId(joiningPlayer.id);
+          }
         }
       }
     );
