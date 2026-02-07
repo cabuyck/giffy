@@ -328,3 +328,32 @@
 - Judge ID is at `room.players[room.judgeIndex].id` - use this to validate judge-only actions
 - Broadcast submission_received with `io.to(roomCode).emit()` so all players see the counter update
 ---
+
+## 2025-02-07 - US-013
+- Created JudgingPage component for judge only
+- Display all submitted GIFs in a responsive grid layout (auto-fit, minmax 280px)
+- Label submissions as 'Player A', 'Player B', etc. using PLAYER_LABELS array
+- Judge cannot see who submitted which GIF - submissions are anonymized
+- Clicking a GIF selects it as winner with visual confirmation (border + checkmark)
+- 'Confirm Winner' button disabled until selection is made
+- Non-judge players see waiting screen with spinner
+- Updated App.tsx to route to JudgingPage for 'judging' gameState
+- Typecheck passes for client
+- Note: Manual browser verification required (dev-browser skill not available)
+
+**Files created:**
+- `/client/src/components/JudgingPage.tsx` - Judging page component
+- `/client/src/components/JudgingPage.css` - Styled component with grid layout
+
+**Files changed:**
+- `/client/src/App.tsx` - Added routing for 'judging' gameState
+
+**Learnings for future iterations:**
+- Use array of labels: `const PLAYER_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']`
+- Map submissions to labels: `const playerLabel = PLAYER_LABELS[index] || \`Player ${index + 1}\``
+- Selected overlay positioned absolute with `top: 0; right: 0` for checkmark badge
+- Border styling on parent card, not image, for cleaner look
+- Non-judge players check `!isJudge` to see waiting screen
+- Room.submissions array contains all submissions with playerId and gifUrl
+- The prompt is displayed to maintain context for the judge
+---
