@@ -150,6 +150,54 @@ io.on('connection', (socket) => {
     callback({ room });
   });
 
+  socket.on('start_game', () => {
+    console.log('start_game');
+
+    const roomCode = socketToRoom.get(socket.id);
+    const playerId = socketToPlayer.get(socket.id);
+
+    if (!roomCode || !playerId) {
+      socket.emit('error', 'You are not in a room');
+      return;
+    }
+
+    const room = rooms.get(roomCode);
+    if (!room) {
+      socket.emit('error', 'Room not found');
+      return;
+    }
+
+    // Verify the player is the host
+    if (playerId !== room.hostId) {
+      socket.emit('error', 'Only the host can start the game');
+      return;
+    }
+
+    // Check minimum players (at least 2)
+    const connectedPlayers = room.players.filter(p => p.isConnected);
+    if (connectedPlayers.length < 2) {
+      socket.emit('error', 'Need at least 2 players to start');
+      return;
+    }
+
+    // Set game state to prompt_selection
+    room.gameState = 'prompt_selection';
+
+    // Assign judgeIndex (0 for first game)
+    room.judgeIndex = 0;
+
+    // Set totalRounds equal to number of players
+    room.totalRounds = room.players.length;
+
+    // Get judge ID
+    const judgeId = room.players[room.judgeIndex].id;
+
+    console.log(`Game started in room ${roomCode}. Judge: ${room.players[room.judgeIndex].name}`);
+
+    // Emit game_started event to all players
+    io.to(roomCode).emit('game_started', { judgeId, room });
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
 
