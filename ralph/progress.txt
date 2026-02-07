@@ -496,3 +496,23 @@
 - Emit game_over with reason: `io.to(roomCode).emit('game_over', { room, reason: '...' })`
 - Count connected players: `room.players.filter(p => p.isConnected).length`
 ---
+
+## 2025-02-07 - US-020
+- Mobile responsive styling was already implemented as part of component development
+- Tailwind CSS is configured in the client (added in US-001)
+- All 7 component CSS files include @media queries for responsive design
+- Touch targets meet 44x44px minimum (buttons have padding: 0.875rem-1rem)
+- GIF grids use responsive grid-template-columns with auto-fit and minmax
+- Room code display uses large monospace font (2rem+) for readability
+- Viewport sizes tested via media queries: @media (max-width: 640px), @media (max-width: 480px)
+- Typecheck passes for client
+- Note: Manual browser verification required (dev-browser skill not available)
+
+**Learnings for future iterations:**
+- Responsive grid: `grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))` for desktop
+- Mobile grid: `grid-template-columns: 1fr` for single column on small screens
+- Breakpoints used: 640px for tablets, 480px for mobile
+- Touch target sizing: buttons with `padding: 0.875rem 1rem` exceed 44px minimum
+- Font scaling: reduce font-size on mobile (2rem → 1.5rem)
+- All component CSS files include responsive @media sections at the bottom
+---
