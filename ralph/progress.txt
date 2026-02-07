@@ -233,3 +233,16 @@
 - The current prompt is stored in both `room.currentPrompt` and client state (`currentPrompt`) for UI consistency
 - CSS uses a consistent gradient theme: `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`
 ---
+
+## 2025-02-07 - US-009
+- Already implemented in US-008 (confirm_prompt event handler)
+- Server handles confirm_prompt event from judge
+- Server sets gameState to 'submitting' and stores currentPrompt
+- Server emits prompt_selected event with prompt and judgeId to all players
+- Typecheck passes for server
+
+**Learnings for future iterations:**
+- Sometimes user stories overlap - US-009 was fully implemented as part of US-008
+- Always check if functionality already exists before starting a new story
+- The confirm_prompt handler transitions the game to 'submitting' state which triggers the next phase (GIF submissions)
+---
