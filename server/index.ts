@@ -523,6 +523,42 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('play_again', () => {
+    console.log('play_again');
+
+    const roomCode = socketToRoom.get(socket.id);
+    const playerId = socketToPlayer.get(socket.id);
+
+    if (!roomCode || !playerId) {
+      socket.emit('error', 'You are not in a room');
+      return;
+    }
+
+    const room = rooms.get(roomCode);
+    if (!room) {
+      socket.emit('error', 'Room not found');
+      return;
+    }
+
+    // Reset game state for new game
+    room.currentRound = 0;
+    room.judgeIndex = 0;
+    room.submissions = [];
+    room.currentPrompt = null;
+    room.rerollCount = 0;
+
+    // Keep players and their scores from previous game
+    // (scores accumulate across multiple games)
+
+    // Set game state to lobby
+    room.gameState = 'lobby';
+
+    console.log(`Room ${roomCode} playing again. Returning to lobby.`);
+
+    // Emit event to transition all players to lobby
+    io.to(roomCode).emit('player_left', { room });
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
 
