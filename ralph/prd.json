@@ -1,0 +1,331 @@
+{
+  "project": "Giffy",
+  "branchName": "ralph/giffy-mvp-game",
+  "description": "Giffy - A Jackbox-style multiplayer party game where players submit GIFs in response to prompts and a judge picks the winner each round",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Set up project structure and shared types",
+      "description": "As a developer, I need to set up the monorepo structure with client and server directories and shared TypeScript types.",
+      "acceptanceCriteria": [
+        "Create /client and /server directories with package.json files",
+        "Create /shared directory with TypeScript types for Room, Player, Submission",
+        "Configure Vite in client for React + TypeScript",
+        "Configure server with Express + Socket.io + TypeScript",
+        "Typecheck passes for both client and server"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create Socket.io server with room management",
+      "description": "As a developer, I need to set up Socket.io server with basic room creation, joining, and player management.",
+      "acceptanceCriteria": [
+        "Server listens on configured PORT from environment variable",
+        "Implement create_room event: generates 4-character alphanumeric code, creates room with host",
+        "Implement join_room event: validates code, adds player to room (max 4 players)",
+        "Server stores rooms in-memory Map<code, Room>",
+        "Handle player disconnect and remove from room",
+        "Typecheck passes for server"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create client home page with create/join game UI",
+      "description": "As a player, I want to see a home page where I can create a new game or join with a room code.",
+      "acceptanceCriteria": [
+        "Create HomePage component with two modes: Create Game and Join Game",
+        "Create Game: name input + 'Create Game' button",
+        "Join Game: room code input + name input + 'Join Game' button",
+        "Room code input validates 4-character format",
+        "Socket.io client connects to server on page load",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Implement Socket event handlers for room creation and joining",
+      "description": "As a developer, I need to wire up Socket event handlers between client and server for room flow.",
+      "acceptanceCriteria": [
+        "Client emits create_room with playerName, receives room_created event",
+        "Client emits join_room with roomCode and playerName, receives player_joined or error",
+        "Client updates state on player_joined events for all players in room",
+        "Client updates state on player_left events",
+        "Typecheck passes for both client and server"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create lobby page with room code display and player list",
+      "description": "As a player, I want to see the lobby with room code and all connected players after joining.",
+      "acceptanceCriteria": [
+        "Create LobbyPage component that displays after joining room",
+        "Show room code in large, prominent display",
+        "Show list of all connected players with their names",
+        "Host sees 'Start Game' button, other players do not",
+        "Start Game button disabled when fewer than 2 players",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Implement game start and judge assignment logic",
+      "description": "As a developer, I need to implement server-side game start logic with judge rotation.",
+      "acceptanceCriteria": [
+        "Server handles start_game event (only from host)",
+        "Server sets gameState to 'prompt_selection' and assigns judgeIndex (0 for first game)",
+        "Server emits game_started event to all players with judgeId",
+        "Server stores totalRounds equal to number of players",
+        "Typecheck passes for server"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Add prompts list and random prompt selection",
+      "description": "As a developer, I need a list of prompts and logic to randomly select them.",
+      "acceptanceCriteria": [
+        "Create prompts.ts with array of 50-100 prompt strings",
+        "Implement getRandomPrompt() server function",
+        "Server tracks reroll count per round (max 3)",
+        "Typecheck passes for server"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create judge prompt selection page",
+      "description": "As the judge, I want to see a prompt and be able to reroll or confirm it to start the round.",
+      "acceptanceCriteria": [
+        "Create JudgePromptPage component shown only to judge",
+        "Display prompt card with current prompt text",
+        "Add 'Next Prompt' button (disabled after 3 rerolls)",
+        "Add 'Start Round' button to send prompt to all players",
+        "Non-judge players see 'Judge is selecting a prompt...' state",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Implement prompt confirmation and round start on server",
+      "description": "As a developer, I need to handle prompt confirmation and broadcast to all players.",
+      "acceptanceCriteria": [
+        "Server handles confirm_prompt event from judge",
+        "Server sets gameState to 'submitting' and stores currentPrompt",
+        "Server emits prompt_selected event with prompt and judgeId to all players",
+        "Typecheck passes for server"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Create Giphy API client and search endpoint",
+      "description": "As a developer, I need to integrate Giphy API so players can search for GIFs.",
+      "acceptanceCriteria": [
+        "Create GiphyClient class with search method",
+        "Read VITE_GIPHY_API_KEY from environment variables",
+        "Implement /api/gifs/search endpoint with query parameter",
+        "Return 20 GIF results with url and title fields",
+        "Filter for rating=pg or pg-13 only",
+        "Handle API errors with graceful fallback message",
+        "Typecheck passes for server"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Create GIF submission page with search and selection",
+      "description": "As a non-judge player, I want to search Giphy and select a GIF to submit.",
+      "acceptanceCriteria": [
+        "Create GifSubmissionPage component shown to non-judge players",
+        "Display judge's prompt prominently at top",
+        "Add search input that calls Giphy API on debounce",
+        "Display search results as responsive grid of GIF thumbnails",
+        "Clicking GIF selects it (shows visual confirmation)",
+        "Selected GIF can be changed before submission",
+        "Add 'Submit' button that sends gifUrl to server",
+        "After submit, show 'Waiting for other players...' state",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Handle GIF submissions on server",
+      "description": "As a developer, I need to handle GIF submissions and track when all players have submitted.",
+      "acceptanceCriteria": [
+        "Server handles submit_gif event with gifUrl",
+        "Server stores submission in Room.submissions array",
+        "Server emits submission_received event with count to all players",
+        "When all non-judge players submitted, set gameState to 'judging'",
+        "Typecheck passes for server"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Create judging page with anonymized submissions",
+      "description": "As the judge, I want to see all submitted GIFs anonymized and select a winner.",
+      "acceptanceCriteria": [
+        "Create JudgingPage component shown only to judge",
+        "Display all submitted GIFs in a grid layout",
+        "Label submissions as 'Player A', 'Player B', etc. (anonymized)",
+        "Judge cannot see who submitted which GIF during selection",
+        "Clicking a GIF selects it as winner",
+        "Add 'Confirm Winner' button (disabled until selection made)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Handle winner selection and scoring on server",
+      "description": "As a developer, I need to process winner selection, update scores, and broadcast results.",
+      "acceptanceCriteria": [
+        "Server handles select_winner event with submissionId",
+        "Server finds playerId from submission and increments their score by 1",
+        "Server emits round_results event with winnerId, all submissions, and current scores",
+        "Typecheck passes for server"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Create round results page with winner reveal",
+      "description": "As a player, I want to see who won the round and the current scoreboard.",
+      "acceptanceCriteria": [
+        "Create RoundResultsPage component shown to all players",
+        "Highlight the winning GIF prominently",
+        "Reveal which player submitted the winning GIF",
+        "Reveal all submissions with their submitter names",
+        "Display scoreboard showing all players and their points",
+        "Only judge sees 'Next Round' button",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Implement round progression and judge rotation",
+      "description": "As a developer, I need to advance to next round, rotate judge, and detect game end.",
+      "acceptanceCriteria": [
+        "Server handles next_round event (only from current judge)",
+        "Increment currentRound, advance judgeIndex (wrap to 0 if at end)",
+        "If currentRound > totalRounds, set gameState to 'game_over'",
+        "Otherwise, set gameState to 'prompt_selection' with new judge",
+        "Emit appropriate events to transition players to next state",
+        "Typecheck passes for server"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Create game over page with final results",
+      "description": "As a player, I want to see the final winner and have options to play again or leave.",
+      "acceptanceCriteria": [
+        "Create GameOverPage component shown when game ends",
+        "Display final scoreboard with all players ranked by score",
+        "Highlight overall winner with special visual treatment",
+        "Add 'Play Again' button (returns to lobby with same players)",
+        "Add 'Leave Game' button (returns to home page)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Implement play again functionality",
+      "description": "As a developer, I need to reset game state for a new game with same players.",
+      "acceptanceCriteria": [
+        "Server handles play_again event",
+        "Reset currentRound, submissions, currentPrompt",
+        "Preserve players and scores (or reset scores - decide in notes)",
+        "Set gameState to 'lobby'",
+        "Emit event to transition all players to lobby",
+        "Typecheck passes for server"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Handle player disconnection and reconnection",
+      "description": "As a developer, I need to handle players disconnecting and optionally reconnecting.",
+      "acceptanceCriteria": [
+        "On socket disconnect, mark player as isConnected: false in room",
+        "Emit player_disconnected event to other players",
+        "If disconnected player was judge, advance judgeIndex to next connected player",
+        "If fewer than 2 players remain, end game and emit game_over with error",
+        "Allow reconnection by joining same room with same name",
+        "Typecheck passes for server"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Add mobile responsive styling",
+      "description": "As a player, I want the game to work well on mobile devices.",
+      "acceptanceCriteria": [
+        "Add Tailwind CSS or similar responsive styling",
+        "Ensure all touch targets are minimum 44x44px",
+        "Test viewport sizes from 375px (mobile) to desktop",
+        "GIF grids are responsive (1 column mobile, 2-3 columns desktop)",
+        "Room code display is large and readable on mobile",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

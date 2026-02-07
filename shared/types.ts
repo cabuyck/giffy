@@ -137,3 +137,7 @@ export type ClientToServerEvents = {
 export interface RoomJoinedEvent {
   room: Room;
 }
+
+// Additional types for Socket.io Server
+export type InterServerEvents = {};
+export type SocketData = {};

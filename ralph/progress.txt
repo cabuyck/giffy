@@ -1,0 +1,80 @@
+# Ralph Progress Tracker for: ralph/giffy-mvp-game
+
+## Stories: 20 | Completed: 2 | In Progress: 0
+
+## Story Status
+
+| ID | Title | Status |
+|----|-------|--------|
+| US-001 | Set up project structure and shared types | Completed |
+| US-002 | Create Socket.io server with room management | Completed |
+| US-003 | Create client home page with create/join game UI | Pending |
+| US-004 | Implement Socket event handlers for room creation and joining | Pending |
+| US-005 | Create lobby page with room code display and player list | Pending |
+| US-006 | Implement game start and judge assignment logic | Pending |
+| US-007 | Add prompts list and random prompt selection | Pending |
+| US-008 | Create judge prompt selection page | Pending |
+| US-009 | Implement prompt confirmation and round start on server | Pending |
+| US-010 | Create Giphy API client and search endpoint | Pending |
+| US-011 | Create GIF submission page with search and selection | Pending |
+| US-012 | Handle GIF submissions on server | Pending |
+| US-013 | Create judging page with anonymized submissions | Pending |
+| US-014 | Handle winner selection and scoring on server | Pending |
+| US-015 | Create round results page with winner reveal | Pending |
+| US-016 | Implement round progression and judge rotation | Pending |
+| US-017 | Create game over page with final results | Pending |
+| US-018 | Implement play again functionality | Pending |
+| US-019 | Handle player disconnection and reconnection | Pending |
+| US-020 | Add mobile responsive styling | Pending |
+
+## Execution Log
+
+## 2025-02-07 - US-001
+- Created monorepo structure with /client, /server, and /shared directories
+- Set up package.json files for client and server with appropriate dependencies
+- Created shared TypeScript types (Room, Player, Submission, GameState, and all Socket event types)
+- Configured Vite for client with React + TypeScript + Tailwind CSS
+- Configured Express + Socket.io server with TypeScript
+- Created root tsconfig.json with project references
+- Typecheck passes for both client and server
+
+**Files created:**
+- `/client/package.json`, `/client/vite.config.ts`, `/client/tsconfig.json`, `/client/tsconfig.node.json`
+- `/client/index.html`, `/client/src/main.tsx`, `/client/src/App.tsx`, `/client/src/index.css`, `/client/src/App.css`
+- `/client/tailwind.config.js`, `/client/postcss.config.js`
+- `/server/package.json`, `/server/tsconfig.json`, `/server/index.ts`, `/server/.env.example`
+- `/shared/types.ts`
+- `/tsconfig.json` (root)
+
+**Learnings for future iterations:**
+- Path aliases (`@/*`) are configured in tsconfig to point to shared directory - use `@/types` to import types
+- Client uses Vite with React plugin, server uses tsx for TypeScript execution
+- Root tsconfig.json uses project references to enable composite builds
+- Socket.io types use ServerToClientEvents and ClientToServerEvents pattern for type safety
+---
+
+## 2025-02-07 - US-002
+- Implemented full room management system on Socket.io server
+- Added generateRoomCode() function that creates 4-character codes (excluding I, O, 1, 0 for clarity)
+- Implemented create_room event handler: generates unique room code, creates host player, stores room in Map
+- Implemented join_room event handler: validates room code, checks max 4 players, prevents duplicate names
+- Added player disconnect handling: marks player as disconnected, removes from lobby, promotes new host if needed
+- Installed @types/express package to fix type errors
+- Fixed Socket.io Server type order: `Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>`
+- Added socket tracking maps (socketToRoom, socketToPlayer) to manage socket-to-room/player associations
+- Typecheck passes for server
+
+**Files changed:**
+- `/server/index.ts` - Full implementation of room management
+- `/shared/types.ts` - Added InterServerEvents and SocketData types
+- `/server/package.json` - Added @types/express dependency
+
+**Learnings for future iterations:**
+- Socket.io Server type arguments order is critical: `Server<ClientToServerEvents, ServerToServerEvents, InterServerEvents, SocketData>`
+- The Server type parameters are: (listen events, emit events, inter-server events, socket data)
+- Character set `ABCDEFGHJKLMNPQRSTUVWXYZ23456789` avoids ambiguous characters (I, O, 1, 0)
+- Use socket.join(roomCode) to enable targeted broadcasts with io.to(roomCode)
+- Track socket associations in separate Maps to handle disconnects without needing socket.data
+- When host disconnects in lobby, promote first remaining player to host
+---
+
