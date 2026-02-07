@@ -274,3 +274,36 @@
 - Error handling should catch and log errors but return fallback data (empty array) rather than crashing
 - Environment variables are read with `process.env.VARIABLE_NAME`
 ---
+
+## 2025-02-07 - US-011
+- Created GifSubmissionPage component for non-judge players
+- Implemented prompt display with prominent styling at top
+- Added search input with 500ms debounce calling Giphy API
+- Display search results as responsive grid (auto-fill, minmax 200px)
+- Clicking GIF selects it with visual confirmation (border + checkmark badge)
+- Selection can be changed before submission by clicking another GIF
+- Added 'Submit' button that sends gifUrl to server via submit_gif event
+- After submission, show 'Waiting for other players...' state with spinner
+- Judge sees waiting view while players submit GIFs
+- Updated App.tsx to route to GifSubmissionPage for 'submitting' gameState
+- Typecheck passes for client
+- Note: Manual browser verification required (dev-browser skill not available)
+
+**Files created:**
+- `/client/src/components/GifSubmissionPage.tsx` - GIF submission page component
+- `/client/src/components/GifSubmissionPage.css` - Styled component with grid layout
+
+**Files changed:**
+- `/client/src/App.tsx` - Added routing for 'submitting' gameState
+
+**Learnings for future iterations:**
+- Custom debounce function: `debounce<T extends (...args: any[]) => any>(func: T, wait: number)`
+- Debounce uses `setTimeout` and `clearTimeout` with closure over timeout variable
+- Client-side API calls use VITE_ prefixed env vars: `import.meta.env.VITE_SOCKET_URL`
+- Fetch API URL construction: `${serverUrl}/api/gifs/search?q=${encodeURIComponent(query)}`
+- Responsive grid: `grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))`
+- Conditional styling: `selectedGif?.url === gif.url` to show selected state
+- The prompt_selected event stores prompt in both room state and component state
+- Judge sees different UI in same component - check `isJudge` and conditionally render
+- Use `loading="lazy"` on images for better performance with many GIFs
+---
