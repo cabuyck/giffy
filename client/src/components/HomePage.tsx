@@ -79,7 +79,8 @@ function HomePage({ onRoomJoined, onPlayerIdSet, onSocketReady }: HomePageProps)
     onSocketReady(socketInstance);
 
     return () => {
-      socketInstance.disconnect();
+      // Don't disconnect - socket persists across navigation
+      // App.tsx manages the socket lifecycle
     };
   }, [handlePlayerJoined, handlePlayerLeft, handlePlayerDisconnected]);
 

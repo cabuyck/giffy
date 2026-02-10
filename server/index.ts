@@ -350,6 +350,7 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('prompt_selected', {
       prompt,
       judgeId,
+      room,
     });
   });
 

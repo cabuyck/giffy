@@ -35,6 +35,7 @@ function App() {
           room={currentRoom}
           currentPlayerId={currentPlayerId}
           socket={socket}
+          onRoomUpdate={setCurrentRoom}
         />
       );
     }

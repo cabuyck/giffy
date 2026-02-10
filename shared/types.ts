@@ -77,6 +77,7 @@ export interface ConfirmPromptEvent {
 export interface PromptSelectedEvent {
   prompt: string;
   judgeId: string;
+  room: Room;
 }
 
 export interface SubmitGifEvent {

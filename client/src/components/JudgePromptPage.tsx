@@ -8,9 +8,10 @@ interface JudgePromptPageProps {
   room: Room;
   currentPlayerId: string;
   socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
+  onRoomUpdate: (room: Room) => void;
 }
 
-function JudgePromptPage({ room, currentPlayerId, socket }: JudgePromptPageProps) {
+function JudgePromptPage({ room, currentPlayerId, socket, onRoomUpdate }: JudgePromptPageProps) {
   const [currentPrompt, setCurrentPrompt] = useState<string | null>(null);
   const [rerollsRemaining, setRerollsRemaining] = useState(3);
 
@@ -24,7 +25,13 @@ function JudgePromptPage({ room, currentPlayerId, socket }: JudgePromptPageProps
       setRerollsRemaining(data.rerollsRemaining);
     };
 
+    const handlePromptSelected = (data: PromptSelectedEvent) => {
+      // Update room state to trigger navigation to next page
+      onRoomUpdate(data.room);
+    };
+
     socket.on('prompt_rerolled', handlePromptRerolled);
+    socket.on('prompt_selected', handlePromptSelected);
 
     // If we already have a prompt in the room, use it
     if (room.currentPrompt) {
@@ -34,8 +41,9 @@ function JudgePromptPage({ room, currentPlayerId, socket }: JudgePromptPageProps
 
     return () => {
       socket.off('prompt_rerolled', handlePromptRerolled);
+      socket.off('prompt_selected', handlePromptSelected);
     };
-  }, [socket, room]);
+  }, [socket, room, onRoomUpdate]);
 
   const handleReroll = () => {
     if (!socket || rerollsRemaining <= 0) return;
