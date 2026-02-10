@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Socket } from 'socket.io-client';
 import type { ServerToClientEvents, ClientToServerEvents, Room } from '@/types';
-import type { PromptSelectedEvent } from '@/types';
+import type { PromptSelectedEvent, JudgingStartedEvent } from '@/types';
 import './GifSubmissionPage.css';
 
 interface GifResult {
@@ -13,9 +13,10 @@ interface GifSubmissionPageProps {
   room: Room;
   currentPlayerId: string;
   socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
+  onRoomUpdate: (room: Room) => void;
 }
 
-function GifSubmissionPage({ room, currentPlayerId, socket }: GifSubmissionPageProps) {
+function GifSubmissionPage({ room, currentPlayerId, socket, onRoomUpdate }: GifSubmissionPageProps) {
   const [prompt, setPrompt] = useState<string | null>(room.currentPrompt);
   const [searchQuery, setSearchQuery] = useState('');
   const [gifResults, setGifResults] = useState<GifResult[]>([]);
@@ -37,12 +38,19 @@ function GifSubmissionPage({ room, currentPlayerId, socket }: GifSubmissionPageP
       setSelectedGif(null);
     };
 
+    const handleJudgingStarted = (data: JudgingStartedEvent) => {
+      // Update room state to trigger navigation to judging page
+      onRoomUpdate(data.room);
+    };
+
     socket.on('prompt_selected', handlePromptSelected);
+    socket.on('judging_started', handleJudgingStarted);
 
     return () => {
       socket.off('prompt_selected', handlePromptSelected);
+      socket.off('judging_started', handleJudgingStarted);
     };
-  }, [socket]);
+  }, [socket, onRoomUpdate]);
 
   // Debounced search function
   const debouncedSearch = useCallback(

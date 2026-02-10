@@ -6,11 +6,8 @@ Server running on http://localhost:3001
 Client connected: xjVgSmciftDJPbGIAAAB
 Client disconnected: xjVgSmciftDJPbGIAAAB
 Untracked socket disconnected
-Client co7:23:17 AM [tsx] change in ./server/index.ts Process hasn't exited. Killing pro7:23:22 7:37:50 AM [tsx] change in ./server/index.ts Process 7:37:50 AM [tsx] change in ./server/index.ts Process hasn't exited. Killing process...
-QER deleted (no players)
-Client connected: 2EFJO5IHQU9CK8ERAAAH
-join_room: XQER Bob
-join_room: XQER Bob
+Client co7:23:17 AM [tsx] change in ./server/index.ts Process hasn't exited. Killing pro7:23:22 7:37:50 AM [tsx] change in ./server/index.ts Process 7:37:50 AM [tsx] change in ./serve9:19:29 PM [tsx] change in ./server/index.ts Process 9:19:29 PM [tsx] change in ./server/index.ts Process hasn't exited. Killing process...
+n_room: XQER Bob
 Client disconnected: 2EFJO5IHQU9CK8ERAAAH
 Untracked socket disconnected
 Client connected: VZpE-Mq4WyR_wPfLAAAK
@@ -49,7 +46,31 @@ Error: listen EADDRINUSE: address already in use :::3001
     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
     at listenInCluster (node:net:1965:12)
     at Server.listen (node:net:2067:7)
-    at <anonymous> (/home/ubuntu/projects/giffy/server/index.ts:705:12)
+    at <anonymous> (/home/ubuntu/proj9:19:29 PM [tsx] change in ./server/index.ts Restarting...
+cnode:events:502
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+    at listenInCluster (node:net:1965:12)
+    at Server.listen (node:net:2067:7)
+    at <anonymous> (/home/ubuntu/projects/giffy/server/index.ts:708:12)
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1944:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
+
+Node.js v20.20.0
+cts/giffy/server/index.ts:708:12)
     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
@@ -70,19 +91,15 @@ ed 'error' event on Server instance at:
   code: 'EADDRINUSE',
   errno: -98,
   syscall: 'listen',
-  address: '::',
-  port: 3001
-}
-
-Node.js v20.20.0
-led 'error' event
+  addressnode:events:502
+      throw er; // Unhandled 'error' event
       ^
 
 Error: listen EADDRINUSE: address already in use :::3001
     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
     at listenInCluster (node:net:1965:12)
     at Server.listen (node:net:2067:7)
-    at <anonymous> (/home/ubuntu/projects/giffy/server/index.ts:705:12)
+    at <anonymous> (/home/ubuntu/projects/giffy/server/index.ts:708:12)
     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)

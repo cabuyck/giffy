@@ -415,6 +415,9 @@ io.on('connection', (socket) => {
 
       // Set game state to judging
       room.gameState = 'judging';
+
+      // Emit judging_started event to all players
+      io.to(roomCode).emit('judging_started', { room });
     }
   });
 

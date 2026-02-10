@@ -89,6 +89,10 @@ export interface SubmissionReceivedEvent {
   total: number;
 }
 
+export interface JudgingStartedEvent {
+  room: Room;
+}
+
 export interface SelectWinnerEvent {
   submissionId: string;
 }
@@ -122,6 +126,7 @@ export type ServerToClientEvents = {
   prompt_rerolled: (data: PromptRerolledEvent) => void;
   prompt_selected: (data: PromptSelectedEvent) => void;
   submission_received: (data: SubmissionReceivedEvent) => void;
+  judging_started: (data: JudgingStartedEvent) => void;
   round_results: (data: RoundResultsEvent) => void;
   next_round: (data: NextRoundEvent) => void;
   game_over: (data: GameOverEvent) => void;
