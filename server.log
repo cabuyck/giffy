@@ -1,0 +1,22 @@
+
+> giffy@0.1.0 dev:server
+> tsx watch server/index.ts
+
+Server running on http://localhost:3001
+Client connected: xjVgSmciftDJPbGIAAAB
+Client disconnected: xjVgSmciftDJPbGIAAAB
+Untracked socket disconnected
+Client connected: fXS35ohGgSaUi3PGAAAE
+create_room: Alice
+Room XQER created by Alice (player_1770704195836_qecvy2g)
+Client disconnected: fXS35ohGgSaUi3PGAAAE
+Player Alice (player_1770704195836_qecvy2g) disconnected from room XQER
+Room XQER deleted (no players)
+Client connected: 2EFJO5IHQU9CK8ERAAAH
+join_room: XQER Bob
+join_room: XQER Bob
+Client disconnected: 2EFJO5IHQU9CK8ERAAAH
+Untracked socket disconnected
+Client connected: VZpE-Mq4WyR_wPfLAAAK
+Client disconnected: VZpE-Mq4WyR_wPfLAAAK
+Untracked socket disconnected
