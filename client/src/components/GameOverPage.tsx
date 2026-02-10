@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import type { ServerToClientEvents, ClientToServerEvents, Room } from '@/types';
 import './GameOverPage.css';
@@ -6,9 +7,24 @@ interface GameOverPageProps {
   room: Room;
   currentPlayerId: string;
   socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
+  onRoomUpdate: (room: Room) => void;
 }
 
-function GameOverPage({ room, currentPlayerId, socket }: GameOverPageProps) {
+function GameOverPage({ room, currentPlayerId, socket, onRoomUpdate }: GameOverPageProps) {
+  // Listen for player_left event (used for play_again transition back to lobby)
+  useEffect(() => {
+    if (!socket) return;
+
+    const handlePlayerLeft = (data: any) => {
+      onRoomUpdate(data.room);
+    };
+
+    socket.on('player_left', handlePlayerLeft);
+
+    return () => {
+      socket.off('player_left', handlePlayerLeft);
+    };
+  }, [socket, onRoomUpdate]);
   // Sort players by score (descending)
   const sortedPlayers = [...room.players].sort((a, b) => b.score - a.score);
   const winner = sortedPlayers[0];

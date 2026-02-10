@@ -57,6 +57,7 @@ function App() {
           room={currentRoom}
           currentPlayerId={currentPlayerId}
           socket={socket}
+          onRoomUpdate={setCurrentRoom}
         />
       );
     }
@@ -67,6 +68,7 @@ function App() {
           room={currentRoom}
           currentPlayerId={currentPlayerId}
           socket={socket}
+          onRoomUpdate={setCurrentRoom}
         />
       );
     }
@@ -77,6 +79,7 @@ function App() {
           room={currentRoom}
           currentPlayerId={currentPlayerId}
           socket={socket}
+          onRoomUpdate={setCurrentRoom}
         />
       );
     }

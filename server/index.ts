@@ -515,7 +515,7 @@ io.on('connection', (socket) => {
     room.rerollCount = 0;
 
     // Check if game is over
-    if (room.currentRound > room.totalRounds) {
+    if (room.currentRound >= room.totalRounds) {
       console.log(`Game over in room ${roomCode}`);
 
       // Set game state to game_over

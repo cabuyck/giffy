@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import type { ServerToClientEvents, ClientToServerEvents, Room } from '@/types';
 import './RoundResultsPage.css';
@@ -6,9 +7,30 @@ interface RoundResultsPageProps {
   room: Room;
   currentPlayerId: string;
   socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
+  onRoomUpdate: (room: Room) => void;
 }
 
-function RoundResultsPage({ room, currentPlayerId, socket }: RoundResultsPageProps) {
+function RoundResultsPage({ room, currentPlayerId, socket, onRoomUpdate }: RoundResultsPageProps) {
+  // Listen for next_round and game_over events to transition
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNextRound = (data: any) => {
+      onRoomUpdate(data.room);
+    };
+
+    const handleGameOver = (data: any) => {
+      onRoomUpdate(data.room);
+    };
+
+    socket.on('next_round', handleNextRound);
+    socket.on('game_over', handleGameOver);
+
+    return () => {
+      socket.off('next_round', handleNextRound);
+      socket.off('game_over', handleGameOver);
+    };
+  }, [socket, onRoomUpdate]);
   // Check if current player is the judge
   const isJudge = room.players[room.judgeIndex]?.id === currentPlayerId;
 

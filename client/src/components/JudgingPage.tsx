@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import type { ServerToClientEvents, ClientToServerEvents, Room } from '@/types';
 import './JudgingPage.css';
@@ -7,13 +7,29 @@ interface JudgingPageProps {
   room: Room;
   currentPlayerId: string;
   socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
+  onRoomUpdate: (room: Room) => void;
 }
 
 // Player labels for anonymized submissions
 const PLAYER_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
-function JudgingPage({ room, currentPlayerId, socket }: JudgingPageProps) {
+function JudgingPage({ room, currentPlayerId, socket, onRoomUpdate }: JudgingPageProps) {
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
+
+  // Listen for round_results to transition to results page
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleRoundResults = (data: any) => {
+      onRoomUpdate(data.room);
+    };
+
+    socket.on('round_results', handleRoundResults);
+
+    return () => {
+      socket.off('round_results', handleRoundResults);
+    };
+  }, [socket, onRoomUpdate]);
 
   // Check if current player is the judge
   const isJudge = room.players[room.judgeIndex]?.id === currentPlayerId;
