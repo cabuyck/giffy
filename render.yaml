@@ -10,3 +10,6 @@ services:
       - key: GIPHY_API_KEY
         sync: false
     healthCheckPath: /api/health
+    # Install all dependencies (root, client, and server)
+    # This ensures dotenv is available for the server
+
