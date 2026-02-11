@@ -504,7 +504,20 @@ io.on('connection', (socket) => {
 
     winner.score += 1;
 
-    console.log(`Player ${winner.name} (${winner.id}) won the round in room ${roomCode}`);
+    console.log(`Player ${winner.name} (${winner.id}) won the round in room ${roomCode}. Score: ${winner.score}`);
+
+    // Check if winner reached 3 points (game ends immediately)
+    if (winner.score >= 3) {
+      console.log(`Player ${winner.name} wins the game with ${winner.score} points!`);
+
+      room.gameState = 'game_over';
+
+      io.to(roomCode).emit('game_over', {
+        room,
+        winnerId: winner.id,
+      });
+      return;
+    }
 
     // Set game state to round_results
     room.gameState = 'round_results';
