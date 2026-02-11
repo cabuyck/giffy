@@ -29,7 +29,32 @@ const PORT = process.env.PORT || 3001;
 // Express middleware
 app.use(express.json());
 
-// Serve static files in production
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// Giphy search endpoint
+app.get('/api/gifs/search', async (req, res) => {
+  const { q } = req.query;
+
+  if (!q || typeof q !== 'string') {
+    return res.status(400).json({ error: 'Query parameter "q" is required' });
+  }
+
+  try {
+    const results = await searchGifs(q, 20);
+    res.json({ results });
+  } catch (error) {
+    console.error('Error in /api/gifs/search:', error);
+    res.status(500).json({
+      error: 'Failed to search GIFs',
+      results: [],
+    });
+  }
+});
+
+// Serve static files in production (must be AFTER API routes)
 if (isProduction) {
   // Serve client's built files
   app.use(express.static(join(__dirname, '../client/dist')));
@@ -39,13 +64,6 @@ if (isProduction) {
     res.sendFile(join(__dirname, '../client/dist/index.html'));
   });
 }
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
-// Giphy search endpoint
 app.get('/api/gifs/search', async (req, res) => {
   const { q } = req.query;
 
