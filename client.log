@@ -13,3 +13,6 @@
 9:21:47 PM [vite] hmr update /src/components/RoundResultsPage.tsx, /src/index.css
 9:21:52 PM [vite] hmr update /src/components/GameOverPage.tsx, /src/index.css
 9:21:56 PM [vite] hmr update /src/App.tsx, /src/index.css
+10:26:36 PM [vite] hmr update /src/components/HomePage.tsx, /src/index.css
+10:26:36 PM [vite] hmr update /src/components/GifSubmissionPage.tsx, /src/index.css
+10:27:06 PM [vite] hmr update /src/components/JudgePromptPage.tsx, /src/index.css

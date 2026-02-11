@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import type { ServerToClientEvents, ClientToServerEvents, Room } from '@/types';
-import type { PromptRerolledEvent } from '@/types';
+import type { PromptRerolledEvent, PromptSelectedEvent } from '@/types';
 import './JudgePromptPage.css';
 
 interface JudgePromptPageProps {

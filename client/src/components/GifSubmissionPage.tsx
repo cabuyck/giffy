@@ -62,7 +62,7 @@ function GifSubmissionPage({ room, currentPlayerId, socket, onRoomUpdate }: GifS
 
       setIsSearching(true);
       try {
-        const serverUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
+        const serverUrl = import.meta.env.VITE_SOCKET_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
         const response = await fetch(`${serverUrl}/api/gifs/search?q=${encodeURIComponent(query)}`);
         const data = await response.json();
         setGifResults(data.results || []);

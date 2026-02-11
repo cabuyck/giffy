@@ -11,11 +11,12 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
+    "outDir": "./",
     "baseUrl": "..",
     "paths": {
       "@/*": ["shared/*"]
     }
   },
-  "include": ["../shared", "**/*.ts"]
+  "include": ["../shared/types.ts", "./*.ts"]
 }

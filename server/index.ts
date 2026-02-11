@@ -2,14 +2,23 @@ import 'dotenv/config';
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import type { Room, ServerToClientEvents, ClientToServerEvents, Player, InterServerEvents, SocketData } from '@/types';
 import { getRandomPrompt } from './prompts';
 import { searchGifs } from './giphyClient';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const app = express();
 const httpServer = createServer(app);
+
+// In production, serve static files and allow same-origin
+const isProduction = process.env.NODE_ENV === 'production';
+
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
-  cors: {
+  cors: isProduction ? undefined : {
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
     methods: ['GET', 'POST'],
   },
@@ -19,6 +28,22 @@ const PORT = process.env.PORT || 3001;
 
 // Express middleware
 app.use(express.json());
+
+// Serve static files in production
+if (isProduction) {
+  // Serve client's built files
+  app.use(express.static(join(__dirname, '../client/dist')));
+
+  // SPA fallback - serve index.html for all non-API routes
+  app.get('*', (req, res) => {
+    res.sendFile(join(__dirname, '../client/dist/index.html'));
+  });
+}
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
 // Giphy search endpoint
 app.get('/api/gifs/search', async (req, res) => {
